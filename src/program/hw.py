@@ -4,19 +4,26 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, LassoCV, RANSACRegressor
+from sklearn.linear_model import (
+    LinearRegression,
+    Ridge,
+    Lasso,
+    LassoCV,
+    RANSACRegressor,
+)
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # ========== 步驟 1: 載入與預處理所有特徵 ==========
 print("=" * 80)
 print("步驟 1: 資料載入與預處理")
 print("=" * 80)
 
-data = pd.read_csv('src/data/bank/bank.csv', sep=';')
+data = pd.read_csv("src/data/bank/bank.csv", sep=";")
 print(f"原始資料形狀: {data.shape}")
 print(f"欄位名稱: {list(data.columns)}")
 print("\n前 5 筆資料:")
@@ -27,13 +34,13 @@ print(f"\n遺失值統計:")
 print(data.isnull().sum())
 
 # 分離目標變數 - 修正欄位名稱為 'y'
-y = data['y'].map({'yes': 1, 'no': 0})
-X = data.drop('y', axis=1)
+y = data["y"].map({"yes": 1, "no": 0})
+X = data.drop("y", axis=1)
 
 # 處理類別變數
 print("\n處理類別變數...")
-categorical_columns = X.select_dtypes(include=['object']).columns
-numerical_columns = X.select_dtypes(include=['int64', 'float64']).columns
+categorical_columns = X.select_dtypes(include=["object"]).columns
+numerical_columns = X.select_dtypes(include=["int64", "float64"]).columns
 
 print(f"類別變數: {list(categorical_columns)}")
 print(f"數值變數: {list(numerical_columns)}")
@@ -44,10 +51,7 @@ print(f"\nOne-Hot Encoding 後的特徵數量: {X_encoded.shape[1]}")
 
 # 標準化數值特徵
 scaler = StandardScaler()
-X_scaled = pd.DataFrame(
-    scaler.fit_transform(X_encoded),
-    columns=X_encoded.columns
-)
+X_scaled = pd.DataFrame(scaler.fit_transform(X_encoded), columns=X_encoded.columns)
 
 print(f"標準化後的資料形狀: {X_scaled.shape}")
 
@@ -70,7 +74,9 @@ correlation_matrix = X_variance_df.corr().abs()
 upper_triangle = correlation_matrix.where(
     np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool)
 )
-high_corr_features = [column for column in upper_triangle.columns if any(upper_triangle[column] > 0.8)]
+high_corr_features = [
+    column for column in upper_triangle.columns if any(upper_triangle[column] > 0.8)
+]
 X_low_corr = X_variance_df.drop(columns=high_corr_features)
 print(f"移除高相關特徵後保留: {X_low_corr.shape[1]} 個特徵")
 print(f"移除的高相關特徵數量: {len(high_corr_features)}")
@@ -106,8 +112,8 @@ print("=" * 80)
 
 # 輸出為 CSV
 output_data = X_final.copy()
-output_data['deposit'] = y.values
-output_path = 'src/data/bank/bank_tech_features.csv'
+output_data["deposit"] = y.values
+output_path = "src/data/bank/bank_tech_features.csv"
 output_data.to_csv(output_path, index=False)
 print(f"已輸出處理後資料至: {output_path}")
 
@@ -184,9 +190,15 @@ print(f"多項式 LinearRegression - MAE: {mean_absolute_error(y_test, y_pred_po
 ridge_poly = Ridge(alpha=10.0)
 ridge_poly.fit(X_train_poly, y_train)
 y_pred_ridge_poly = ridge_poly.predict(X_test_poly)
-print(f"\n多項式 Ridge Regression - R² Score: {r2_score(y_test, y_pred_ridge_poly):.4f}")
-print(f"多項式 Ridge Regression - MSE: {mean_squared_error(y_test, y_pred_ridge_poly):.4f}")
-print(f"多項式 Ridge Regression - MAE: {mean_absolute_error(y_test, y_pred_ridge_poly):.4f}")
+print(
+    f"\n多項式 Ridge Regression - R² Score: {r2_score(y_test, y_pred_ridge_poly):.4f}"
+)
+print(
+    f"多項式 Ridge Regression - MSE: {mean_squared_error(y_test, y_pred_ridge_poly):.4f}"
+)
+print(
+    f"多項式 Ridge Regression - MAE: {mean_absolute_error(y_test, y_pred_ridge_poly):.4f}"
+)
 
 # ========== 總結 ==========
 print("\n" + "=" * 80)
