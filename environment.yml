@@ -1,4 +1,4 @@
-name: hw
+name: ml_hw
 channels:
   - conda-forge
   - defaults
